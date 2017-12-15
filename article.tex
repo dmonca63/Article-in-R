@@ -1,0 +1,146 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage{natbib}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+\title{Wuthering Heights}
+\author{Dayana Moncada}
+\maketitle
+
+\begin{abstract}
+
+In this Article we are building wordcloud on Latex.
+
+\end{abstract}
+
+\textit In the late winter months of 1801, a man named Lockwood rents a manor house called Thrushcross Grange in the isolated moor country of England. Here, he meets his dour landlord, Heathcliff, a wealthy man who lives in the ancient manor of Wuthering Heights, four miles away from the Grange. In this wild, stormy countryside, Lockwood asks his housekeeper, Nelly Dean, to tell him the story of Heathcliff and the strange denizens of Wuthering Heights. Nelly consents, and Lockwood writes down his recollections of her tale in his diary; these written recollections form the main part of Wuthering Heights.
+
+\section{Packages}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(dplyr)}
+\hlkwd{library}\hlstd{(tidytext)}
+\hlkwd{library}\hlstd{(stringr)}
+\hlkwd{library}\hlstd{(wordcloud)}
+\hlkwd{library}\hlstd{(tm)}
+\hlkwd{library}\hlstd{(gutenbergr)}
+\hlkwd{library}\hlstd{(knitr)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\noindent Download the text by using Gutenberg.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{heights}\hlkwb{<-}\hlkwd{gutenberg_download}\hlstd{(}\hlnum{768}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\section{Getting the words}
+Using dplyr, we will do some data cleaning.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{heights_words}\hlkwb{<-}\hlstd{heights}\hlopt{%>%}
+  \hlkwd{unnest_tokens}\hlstd{(word,text)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\noindent By using the following code, we will be able to get rid of unwanted words for our wordcloud.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{heights_words}\hlkwb{<-}\hlstd{heights_words}\hlopt{%>%}
+  \hlkwd{filter}\hlstd{(}\hlopt{!}\hlstd{(word} \hlopt{%in%} \hlstd{stop_words}\hlopt{$}\hlstd{word))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\noindent Now let's group each word and get the count of each word.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{heights_freq}\hlkwb{<-}\hlstd{heights_words}\hlopt{%>%}
+  \hlkwd{group_by}\hlstd{(word)}\hlopt{%>%}
+  \hlkwd{summarize}\hlstd{(}\hlkwc{count}\hlstd{=}\hlkwd{n}\hlstd{())}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+\section{wordcloud2}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{wordcloud}\hlstd{(heights_freq}\hlopt{$}\hlstd{word,heights_freq}\hlopt{$}\hlstd{count,}\hlkwc{min.freq} \hlstd{=} \hlnum{25}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-1} 
+
+\end{knitrout}
+
+\bibliographystyle{apa}
+\bibliography{article}
+\nocite{*}
+
+\end{document}

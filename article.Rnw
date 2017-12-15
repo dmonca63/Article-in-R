@@ -1,0 +1,73 @@
+\documentclass{article}
+\usepackage{natbib}
+
+\begin{document}
+
+\title{Wuthering Heights}
+\author{Dayana Moncada}
+\maketitle
+
+\begin{abstract}
+
+In this Article we are building wordcloud on Latex.
+
+\end{abstract}
+
+\textit In the late winter months of 1801, a man named Lockwood rents a manor house called Thrushcross Grange in the isolated moor country of England. Here, he meets his dour landlord, Heathcliff, a wealthy man who lives in the ancient manor of Wuthering Heights, four miles away from the Grange. In this wild, stormy countryside, Lockwood asks his housekeeper, Nelly Dean, to tell him the story of Heathcliff and the strange denizens of Wuthering Heights. Nelly consents, and Lockwood writes down his recollections of her tale in his diary; these written recollections form the main part of Wuthering Heights.
+
+\section{Packages}
+
+<<warning=FALSE,message=FALSE>>=
+library(dplyr)
+library(tidytext)
+library(stringr)
+library(wordcloud)
+library(tm)
+library(gutenbergr)
+library(knitr)
+
+@
+
+\noindent Download the text by using Gutenberg.
+
+<<warning=FALSE,message=FALSE>>=
+heights<-gutenberg_download(768)
+@
+
+\section{Getting the words}
+Using dplyr, we will do some data cleaning.
+
+<<warning=FALSE,message=FALSE>>=
+heights_words<-heights%>%
+  unnest_tokens(word,text)
+
+@
+
+\noindent By using the following code, we will be able to get rid of unwanted words for our wordcloud.
+
+<<warning=FALSE,message=FALSE>>=
+heights_words<-heights_words%>%
+  filter(!(word %in% stop_words$word))
+@
+
+\noindent Now let's group each word and get the count of each word.
+
+<<warning=FALSE,message=FALSE>>=
+heights_freq<-heights_words%>%
+  group_by(word)%>%
+  summarize(count=n())
+
+@
+
+
+\section{wordcloud2}
+
+<<>>=
+wordcloud(heights_freq$word,heights_freq$count,min.freq = 25)
+@
+
+\bibliographystyle{apa}
+\bibliography{article}
+\nocite{*}
+
+\end{document}
